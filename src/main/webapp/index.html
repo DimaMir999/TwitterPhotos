@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <meta charset="utf-8">
+    <script>
+        var request;
+        function sendInfo() {
+            var login = document.getElementById("login").value;
+            var size_const = document.getElementById("size_const").value;
+            var sel = document.getElementById("format_select");
+            var format = sel.options[sel.selectedIndex].value;
+            if(parseInt(format) < 0 || parseInt(format) > 6 || parseInt(size_const) < 10 || parseInt(size_const) > 400){
+                document.getElementById("info").innerHTML = "incorect param length of part must be in (10,400)";
+            }
+            else{
+                var url = "makeCollage?login=" + login + "&size_const=" + size_const
+                        + "&format=" + format;
+                document.getElementById("info").innerHTML = "";
+                if (window.XMLHttpRequest) {
+                    request = new XMLHttpRequest();
+                } else if (window.ActiveXObject) {
+                    request = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+
+                try {
+                    request.onreadystatechange = getInfo;
+                    request.open("GET", url, true);
+                    request.send();
+                } catch (e) {
+                    alert("Unable to connect to server");
+                }
+            }
+        }
+
+        function getInfo() {
+            if (request.readyState == 4) {
+                var val = request.responseText;
+                if(val == "ERROR"){
+                    document.getElementById("info").innerHTML = "ERROR can't do collage";
+                }
+                else {
+                    document.getElementById("collage").setAttribute("src", val);
+                    var save = document.getElementById("save");
+                    save.setAttribute("href", val);
+                    save.setAttribute("style", "visibility: visible")
+                }
+            }
+        }
+    </script>
+    <title>
+        Collage for you!
+    </title>
+</head>
+<body>
+    <p>
+        <div> login </div>
+        <input type="text" name="login" id="login">
+    </p>
+    <p>
+        <div> length of part</div>
+        <input type="text" name="size_const" id="size_const">
+    </p>
+    <p>
+        <div> format </div>
+        <select size="1" name="format_select" id="format_select">
+            <option value="0">1 X 1</option>
+            <option value="1">1 X 2</option>
+            <option value="2">2 X 1</option>
+            <option value="3">2 X 3</option>
+            <option value="4">3 X 2</option>
+            <option value="5">3 X 4</option>
+            <option value="6">4 X 3</option>
+        </select>
+    </p>
+    <input type="button" value="Отправить" onclick="sendInfo()">
+    <p>
+        <div id="info"></div>
+    </p>
+    <p>
+        <img id="collage">
+    </p>
+    <p>
+        <a download style="visibility: hidden" id="save">Save Picture</a>
+    <p/>
+</body>
+</html>
