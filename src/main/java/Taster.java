@@ -1,14 +1,9 @@
+import org.apache.log4j.Logger;
 import twitter4j.*;
 
-import javax.imageio.ImageIO;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
-
-import java.io.File;
 import java.io.IOException;
 
-import java.net.URL;
+import java.util.HashMap;
 
 
 public class Taster {
@@ -17,9 +12,10 @@ public class Taster {
     private static String anton = "hammer4thesmith";
     private static String andrei = "andrewhindcrea";
     private static String path = "src/main/webapp/collages/";
+    static Logger logger = Logger.getLogger("console");
 
     public static void main(String[] args) throws TwitterException, IOException, InterruptedException {
-        //CollageMaker maker = new CollageMaker(path, null);
-        //maker.makeCollage2(sashsa, 200, new FormatPicture(FormatPicture.FORMAT_3X4));
+        CollageMaker cm = new CollageMaker(path, logger);
+        cm.makeCollage2(anton, 400, new FormatPicture(FormatPicture.FORMAT_4X3), new HashMap<Long, Count_Picture>(), new HashMap<String, long[]>());
     }
 }

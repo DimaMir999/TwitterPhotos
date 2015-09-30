@@ -2,12 +2,12 @@ import org.apache.log4j.Logger;
 import twitter4j.TwitterException;
 
 import javax.imageio.ImageIO;
-import java.awt.Image;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 public class CollageMaker {
 
@@ -120,21 +120,23 @@ public class CollageMaker {
 
 
 
-
-    /*public void makeCollage2(String login, int sizeConst, FormatPicture format) throws IOException, TwitterException {
-        File file = new File(path + "collages/" + login + "/" + format.getName() + EXTENSION);
-        if (!file.exists()) {
-            TwitterUtil util = new TwitterUtil(logger);
-            List<Count_Picture> pictures = util.getPhotoURLs(login);
-            for (Count_Picture cp : pictures)
-                cp.loadImage();
+    public void makeCollage2(String login, int sizeConst, FormatPicture format,
+                             Map<Long, Count_Picture> pictureCache, HashMap<String, long[]> idsCache)
+            throws IOException, TwitterException {
+        File file = new File(path + "collages/" + login + "/" + format.getName() + "_" + Integer.toString(sizeConst) + EXTENSION);
+        if(!file.exists()){
+            List<Count_Picture> pictures = new ArrayList<Count_Picture>();
+            long[] ids = getIds(login, idsCache);
+            for(long id : ids)
+                pictures.add(getPhoto(id, pictureCache));
             List<Count_Picture>[] arraysForGaps = makeGapList(pictures);
             int count = calculateCount(calculateSquare(arraysForGaps), format);
             BufferedImage picture = makePicture2(arraysForGaps, count, sizeConst, format);
             savePicture(file, picture);
-            System.out.println("makePicture2");
-        } else
-            System.out.println("getReadyPicture");
+            logger.info("Collage is made and save on server repository");
+        }
+        else
+            logger.info("Collage is returned from server repository");
     }
 
 
@@ -151,29 +153,56 @@ public class CollageMaker {
         BufferedImage collage = new BufferedImage(format.getWeight() * sizeConst,
                 format.getHeigth() * sizeConst, BufferedImage.TYPE_INT_ARGB);
         Graphics graphics = collage.getGraphics();
-        Image frame = ImageIO.read(new File(path + "WEB-INF/classes/frame.png"));
+        Image frame = ImageIO.read(new File(path + "../../resources/frame.png")); //"WEB-INF/classes/frame.png"
         Image[] frames = new Image[GAP_COUNT];
-        BufferedImage image;
         for(int i = 0;i < arrayForGaps.length;i++) {
             int size = (i + 1) * length;
             frames[i] = frame.getScaledInstance(size, size, Image.SCALE_SMOOTH);
-            for (Count_Picture cp : arrayForGaps[i]) {
-                image = (BufferedImage) cp.getImage();
-                imageToFoursquare(image);
-                cp.setImage(image.getScaledInstance(size, size, Image.SCALE_SMOOTH));
-            }
         }
-        int height = format.getWeight() * count, weight = format.getWeight() * count;
-        for(int i = 0;i < arrayForGaps.length;i++) {
-            List<Count_Picture> pictures = arrayForGaps[i];
-            while (!pictures.isEmpty()) {
 
-                int x, y;
-                graphics.drawImage(pictures.remove(0).getImage(),x ,y , null);
-                graphics.drawImage(frame,x ,y , null);
+        int height = format.getHeigth() * count, weight = format.getWeight() * count;
+        boolean [][] canvas = new boolean[height][];
+        for(int j = 0;j < canvas.length;j++) {
+            canvas[j] = new boolean[weight];
+            for (int i = 0; i < canvas[j].length; i++)
+                canvas[j][i] = false;
+
+        }
+
+
+        for(int i = arrayForGaps.length - 1;i > -1;i--) {
+            List<Count_Picture> pictures = arrayForGaps[i];
+            int x = 0, y = 0;
+            while (!pictures.isEmpty()) {
+                if(canPut(canvas, x, y, i + 1)){
+                    for(int k = y;k < y + i + 1;k++)
+                        for(int j = x;j < x + i + 1;j++)
+                            canvas[k][j] = true;
+                    graphics.drawImage(pictures.remove(0).getImage().getScaledInstance(length * (i + 1), length * (i + 1)
+                            , Image.SCALE_SMOOTH), x * length, y * length, null);
+                    graphics.drawImage(frames[i],x * length, y * length, null);
+                    System.out.println("size " + (i + 1) + " x = " + x + " y = " + y);
+                    x += i + 1;
+                } else {
+                    x++;
+                }
+                if(x > weight){
+                    x = 0;
+                    y += 1;
+                }
             }
         }
         return collage;
+    }
+
+    private boolean canPut(boolean[][] canvas, int x, int y, int size){
+        if(y + size > canvas.length || x + size > canvas[0].length)
+            return false;
+        for(int i = y;i < y + size;i++)
+            for(int j = x;j < x + size;j++)
+                if(canvas[i][j])
+                   return false;
+        return true;
     }
 
     private List<Count_Picture>[] makeGapList(List<Count_Picture> pictures){
@@ -186,8 +215,8 @@ public class CollageMaker {
         int minCount = pictures.get(0).getCount();
         double gapLength = (double)(pictures.get(pictures.size() - 1).getCount() - minCount)/GAP_COUNT;
         List<Count_Picture>[] arraysForGaps = new List[GAP_COUNT];
-        for(List<Count_Picture> list : arraysForGaps) {
-            list = new ArrayList<Count_Picture>();
+        for(int i = 0;i < arraysForGaps.length;i++) {
+            arraysForGaps[i] = new ArrayList<Count_Picture>();
         }
         for(Count_Picture cp : pictures){
             int count = cp.getCount();
@@ -200,7 +229,6 @@ public class CollageMaker {
             }else {
                 arraysForGaps[3].add(cp);
             }
-            return arraysForGaps;
         }
 
         for(List<Count_Picture> list : arraysForGaps) {
@@ -211,5 +239,5 @@ public class CollageMaker {
 
     private void normalizeData(List<Count_Picture>[] arraysForGaps, int square, FormatPicture format){
         int dif = (int) Math.round((double)square / format.getWeight() / format.getHeigth());
-    }*/
+    }
 }
