@@ -11,11 +11,13 @@ public class Taster {
     private static String sashsa = "alexandra_meoww";
     private static String anton = "hammer4thesmith";
     private static String andrei = "andrewhindcrea";
-    private static String path = "src/main/webapp/collages/";
+	private static String erik = "eko24ive";
+    private static String path = "src/main/webapp/";
     static Logger logger = Logger.getLogger("console");
 
     public static void main(String[] args) throws TwitterException, IOException, InterruptedException {
-        CollageMaker cm = new CollageMaker(path, logger);
-        cm.makeCollage2(anton, 400, new FormatPicture(FormatPicture.FORMAT_4X3), new HashMap<Long, Count_Picture>(), new HashMap<String, long[]>());
+        IdealCollageMaker cm = new IdealCollageMaker(path, logger);
+        cm.makeCollage(anton, 400, new FormatPicture(FormatPicture.FORMAT_3X2), new HashMap<Long, Count_Picture>(),
+        new HashMap<String, long[]>());
     }
 }

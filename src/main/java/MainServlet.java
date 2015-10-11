@@ -1,18 +1,14 @@
 import org.apache.log4j.Logger;
-import twitter4j.TwitterException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class MainServlet extends HttpServlet {
 
@@ -39,7 +35,7 @@ public class MainServlet extends HttpServlet {
         list.add(login);
 
         String path = getServletContext().getResource("/").getPath();
-        CollageMaker maker = new CollageMaker(path, logger);
+        SimpleCollageMaker maker = new SimpleCollageMaker(path, logger);
         Object pictureCacheObj = session.getAttribute("pictureCache");
         HashMap<Long, Count_Picture> pictureCache;
         if(pictureCacheObj == null){
@@ -72,7 +68,7 @@ public class MainServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             if (isMake) {
-                out.println(PATH + "/" + login + "/" + fp.getName() + "_" + sizeConst + CollageMaker.EXTENSION);
+                out.println(PATH + "/" + login + "/" + fp.getName() + "_" + sizeConst + SimpleCollageMaker.EXTENSION);
                 logger.info("Collage of " + login + " is send to client");
             } else {
                 out.println(ERROR);
