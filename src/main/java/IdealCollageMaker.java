@@ -33,7 +33,8 @@ public class IdealCollageMaker extends ScaledCollageMaker{
 			List<Count_Picture>[] arraysForGaps = makeGapList(pictures);
 			int square = calculateSquare(arraysForGaps);
 			int count = calculateCount(square, format);
-			normalizeData(arraysForGaps, count, square, format);
+			if(square != format.getHeigth() * count * format.getWeight() * count)
+				normalizeData(arraysForGaps, count, square, format);
 			BufferedImage picture = makePicture(arraysForGaps, count, sizeConst, format);
 			savePicture(file, picture);
 			logger.info("Collage is made and save on server repository");
@@ -62,12 +63,11 @@ public class IdealCollageMaker extends ScaledCollageMaker{
 			avChanges[i] = (i + 2)*(i + 2) - (i + 1) * (i + 1);
 		}
 		int dif = (format.getHeigth() * count) * (format.getWeight() * count) - realSquare;
-		// перевіряти чи взагалі треба міняти категорії тут або перед викликом методу normalizeData
 		if(dif < 0) {
 			for (int i = avChanges.length - 1; i >= 0; i--) {
 				List<Count_Picture> listUp = arraysForGaps[i + 1];
 				List<Count_Picture> listDown = arraysForGaps[i];
-				while (!listUp.isEmpty() && dif >= avChanges[i]) {
+				while (!listUp.isEmpty() && Math.abs(dif) >= avChanges[i]) {
 					listDown.add(listDown.size() - 1, listUp.remove(0));
 					dif += avChanges[i];
 				}

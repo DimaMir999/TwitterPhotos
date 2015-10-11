@@ -17,7 +17,7 @@ public class Taster {
 
     public static void main(String[] args) throws TwitterException, IOException, InterruptedException {
         IdealCollageMaker cm = new IdealCollageMaker(path, logger);
-        cm.makeCollage(anton, 400, new FormatPicture(FormatPicture.FORMAT_3X2), new HashMap<Long, Count_Picture>(),
+        cm.makeCollage(andrei, 400, new FormatPicture(FormatPicture.FORMAT_4X3), new HashMap<Long, Count_Picture>(),
         new HashMap<String, long[]>());
     }
 }
